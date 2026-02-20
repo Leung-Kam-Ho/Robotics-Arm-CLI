@@ -1,0 +1,19 @@
+[project]
+name = "robotics-arm-cli"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "py-trees>=2.4.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build]
+include = ["src/*"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/robotics_arm_cli"]
