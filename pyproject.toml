@@ -1,7 +1,7 @@
 [project]
 name = "robotics-arm-cli"
 version = "0.1.0"
-description = "Add your description here"
+description = "A CLI tool for controlling robotics arms using behavior trees"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
