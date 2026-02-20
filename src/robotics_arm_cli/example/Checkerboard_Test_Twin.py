@@ -2,9 +2,9 @@
 from pathlib import Path
 from robotics_arm_cli.robot_arm.position import Cartesian, JPosition
 from robotics_arm_cli.robot_arm.robot_arm import RobotArm
+from robotics_arm_cli.example.robot_action_node import MoveJoint, MoveLinear, MoveGripper
 import py_trees
 import time
-from robotics_arm_cli.example.robot_action_node import MoveJoint, MoveLinear, MoveGripper
 
 class CheckerboardSize:
     WIDTH = 410

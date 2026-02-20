@@ -1,6 +1,13 @@
 from robotics_arm_cli.robot_arm.robot_arm import RobotArm
 from robotics_arm_cli.robot_arm.position import Cartesian, JPosition
+from robotics_arm_cli.example.robot_action_node import (
+    MoveJoint,
+    MoveLinear,
+    MoveGripper,
+)
+import py_trees
 import argparse
+import time
 
 
 def move_cartesian(ra: RobotArm, x, y, z, rx, ry, rz):
@@ -20,6 +27,14 @@ def move_cartesian(ra: RobotArm, x, y, z, rx, ry, rz):
     while ra.is_moving():
         pass
     print(f"Reached target position: {target}")
+
+
+def move_joint(ra: RobotArm, j1, j2, j3, j4, j5, j6):
+    target = JPosition(j1, j2, j3, j4, j5, j6)
+    ra.move_joint(target)
+    while ra.is_moving():
+        pass
+    print(f"Reached target joint position: {target.__dict__}")
 
 
 def position_init(ra: RobotArm):
@@ -76,9 +91,16 @@ def main():
     parser.add_argument(
         "--action",
         type=str,
-        choices=["move", "joint", "init"],
+        choices=["init", "move", "joint", "gripper"],
         default="init",
-        help="Action to perform: move (cartesian) or joint (joint angles)",
+        help="Action to perform: init position, move (absolute cartesian), joint (abs joint angles), gripper (open/close)",
+    )
+    parser.add_argument(
+        "--gripper-angle",
+        type=int,
+        choices=[0, 90],
+        default=90,
+        help="Gripper angle: 0 = close, 90 = open",
     )
     parser.add_argument(
         "--speed",
@@ -103,22 +125,51 @@ def main():
             if len(args.coords) < 6:
                 parser.error("joint action requires 6 values: j1 j2 j3 j4 j5 j6")
             args.j1, args.j2, args.j3, args.j4, args.j5, args.j6 = args.coords[:6]
+        case "gripper":
+            pass
         case "init":
             pass
         case _:
             pass
 
     # -- connect to robot arm and execute action --
+    root = py_trees.composites.Sequence("Main", memory=True)
     ra = connectToRobotArm(args.ip, args.offset, args.speed)
     match args.action:
         case "move":
-            move_cartesian(ra, args.x, args.y, args.z, args.rx, args.ry, args.rz)
+            root.add_child(
+                MoveLinear(
+                    "MoveCartesian",
+                    ra,
+                    Cartesian(args.x, args.y, args.z, args.rx, args.ry, args.rz),
+                    relative=False,
+                )
+            )
         case "joint":
-            pass
+            root.add_child(
+                MoveJoint(
+                    "MoveJoint",
+                    ra,
+                    JPosition(args.j1, args.j2, args.j3, args.j4, args.j5, args.j6),
+                    relative=False,
+                )
+            )
+        case "gripper":
+            root.add_child(MoveGripper(ra, args.gripper_angle, "GripperAction"))
         case "init":
-            position_init(ra)
+            root.add_child(MoveJoint("InitPosition", ra, ra.Init_pose, relative=False))
         case _:
             pass
+    tree = py_trees.trees.BehaviourTree(root)
+
+    while not (
+        tree.root.status
+        in [py_trees.common.Status.SUCCESS, py_trees.common.Status.FAILURE]
+    ):
+        tree.tick()
+        time.sleep(0.1)  # small delay to prevent busy waiting
+
+    print(f"Behavior tree execution completed with status: {tree.root.status}")
 
 
 if __name__ == "__main__":
