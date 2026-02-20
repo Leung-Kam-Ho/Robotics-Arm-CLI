@@ -80,20 +80,20 @@ def main():
         description="Run the robotics arm behavior tree example."
     )
     parser.add_argument(
-        "--ip", type=str, required=True, help="IP address of the robot arm"
+        "ip", type=str, help="IP address of the robot arm"
     )
     parser.add_argument(
-        "--offset",
-        type=int,
-        required=True,
-        help="Base offset for the robot arm in degrees",
-    )
-    parser.add_argument(
-        "--action",
+        "action",
         type=str,
         choices=["init", "move", "joint", "gripper"],
         default="init",
         help="Action to perform: init position, move (absolute cartesian), joint (abs joint angles), gripper (open/close)",
+    )
+    parser.add_argument(
+        "--offset",
+        type=int,
+        default=0,
+        help="Base offset for the robot arm in degrees",
     )
     parser.add_argument(
         "--gripper-angle",
@@ -109,7 +109,7 @@ def main():
         help="Speed for the robot arm (default: 0.4 m/s)",
     )
     parser.add_argument(
-        "coords", nargs="*", type=float, help="Coordinates for move or joint action"
+        "--coords", nargs="*", type=float, help="Coordinates for move or joint action"
     )
 
     args = parser.parse_args()
