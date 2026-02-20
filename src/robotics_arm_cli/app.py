@@ -1,8 +1,28 @@
 from robotics_arm_cli.robot_arm.robot_arm import RobotArm
+from robotics_arm_cli.robot_arm.position import Cartesian, JPosition
 import argparse
 
 
-def connectToRobotArm(ip_address: str, base_offset: int, speed: float = 0.4) -> RobotArm:
+def move_cartesian(ra: RobotArm, x, y, z, rx, ry, rz):
+    current = ra.read_cartesian_pos()
+    if current is None:
+        print("Error: Unable to read current cartesian position.")
+        return
+    target = Cartesian(
+        x=current.x + x,
+        y=current.y + y,
+        z=current.z + z,
+        rx=current.rx + rx,
+        ry=current.ry + ry,
+        rz=current.rz + rz,
+    )
+    ra.move_linear(target)
+    while ra.is_moving():
+        pass
+
+def connectToRobotArm(
+    ip_address: str, base_offset: int, speed: float = 0.4
+) -> RobotArm:
     ra = RobotArm(host=ip_address, base_offset=base_offset)
     ra.set_speed(speed)  # set speed to value from args.speed
     print("---- Robot Arm Connection Details ---")
@@ -10,6 +30,9 @@ def connectToRobotArm(ip_address: str, base_offset: int, speed: float = 0.4) -> 
     print(f"Current Speed: {speed} m/s")
     print(f"Current position: {ra.read_cartesian_pos()}")
     return ra
+
+
+# -- Helper function for argument parsing --
 
 
 def float_range(min_value, max_value):
@@ -23,16 +46,59 @@ def float_range(min_value, max_value):
                 f"must be in range [{min_value} .. {max_value}]"
             )
         return f
+
     return checker
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Run the robotics arm behavior tree example.")
-    parser.add_argument("--ip", type=str, required=True, help="IP address of the robot arm")
-    parser.add_argument("--offset", type=int, required=True, help="Base offset for the robot arm in degrees")
-    parser.add_argument("--speed", type=float_range(0.1, 1.0), default=0.4, help="Speed for the robot arm (default: 0.4 m/s)")
+    parser = argparse.ArgumentParser(
+        description="Run the robotics arm behavior tree example."
+    )
+    parser.add_argument(
+        "--ip", type=str, required=True, help="IP address of the robot arm"
+    )
+    parser.add_argument(
+        "--offset",
+        type=int,
+        required=True,
+        help="Base offset for the robot arm in degrees",
+    )
+    parser.add_argument(
+        "--action",
+        type=str,
+        choices=["move", "joint", "connect"],
+        default="connect",
+        help="Action to perform: move (cartesian) or joint (joint angles)",
+    )
+    parser.add_argument(
+        "--speed",
+        type=float_range(0.1, 1.0),
+        default=0.4,
+        help="Speed for the robot arm (default: 0.4 m/s)",
+    )
+    parser.add_argument(
+        "coords", nargs="*", type=float, help="Coordinates for move or joint action"
+    )
+
     args = parser.parse_args()
+
+    match args.action:
+        case "move":
+            if len(args.coords) < 6:
+                parser.error("move action requires 6 values: x y z rx ry rz")
+            args.x, args.y, args.z, args.rx, args.ry, args.rz = args.coords[:6]
+        case "joint":
+            if len(args.coords) < 6:
+                parser.error("joint action requires 6 values: j1 j2 j3 j4 j5 j6")
+            args.j1, args.j2, args.j3, args.j4, args.j5, args.j6 = args.coords[:6]
+        case "connect":
+            pass
+        case _:
+            pass
+
     ra = connectToRobotArm(args.ip, args.offset, args.speed)
+    if args.action == "move":
+        move_cartesian(ra, args.x, args.y, args.z, args.rx, args.ry, args.rz)
 
 
 if __name__ == "__main__":
