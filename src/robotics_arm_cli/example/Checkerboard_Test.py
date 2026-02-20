@@ -1,10 +1,10 @@
 # Test move_linear method with py_trees (relative moves)
 from pathlib import Path
-from robot_arm.position import Cartesian, JPosition
-from robot_arm.robot_arm import RobotArm
+from robotics_arm_cli.robot_arm.position import Cartesian, JPosition
+from robotics_arm_cli.robot_arm.robot_arm import RobotArm
 import py_trees
 import time
-from example.robot_action_node import MoveJoint, MoveLinear, MoveGripper
+from robotics_arm_cli.example.robot_action_node import MoveJoint, MoveLinear, MoveGripper
 
 class CheckerboardSize:
     WIDTH = 375

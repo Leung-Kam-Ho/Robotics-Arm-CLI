@@ -2,8 +2,6 @@ from robotics_arm_cli.robot_arm.robot_arm import RobotArm
 from robotics_arm_cli.robot_arm.position import Cartesian
 
 
-
-
 def main():
     # ra = RobotArm(host="192.168.1.64", base_offset=0)
     ra = RobotArm(host="192.168.1.49", base_offset=-30)
