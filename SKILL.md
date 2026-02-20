@@ -1,6 +1,6 @@
 # RAC CLI Skill
 
-This skill provides guidance on using the `rac` CLI tool to control robotics arms.
+This skill provides detailed guidance on using the rac CLI tool to control robotic arms. It includes coordinate definitions, working ranges, setup instructions, and practical examples.
 
 ## Coordinate System
 
