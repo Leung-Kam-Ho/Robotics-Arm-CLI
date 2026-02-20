@@ -19,6 +19,15 @@ def move_cartesian(ra: RobotArm, x, y, z, rx, ry, rz):
     ra.move_linear(target)
     while ra.is_moving():
         pass
+    print(f"Reached target position: {target}")
+
+
+def position_init(ra: RobotArm):
+    ra.move_joint(ra.Init_pose)
+    while ra.is_moving():
+        pass
+    print("Reached initial position.")
+
 
 def connectToRobotArm(
     ip_address: str, base_offset: int, speed: float = 0.4
@@ -29,6 +38,7 @@ def connectToRobotArm(
     print(f"Connected to robot arm at {ip_address}.")
     print(f"Current Speed: {speed} m/s")
     print(f"Current position: {ra.read_cartesian_pos()}")
+    print("-----------------------------------")
     return ra
 
 
@@ -66,8 +76,8 @@ def main():
     parser.add_argument(
         "--action",
         type=str,
-        choices=["move", "joint", "connect"],
-        default="connect",
+        choices=["move", "joint", "init"],
+        default="init",
         help="Action to perform: move (cartesian) or joint (joint angles)",
     )
     parser.add_argument(
@@ -93,7 +103,7 @@ def main():
             if len(args.coords) < 6:
                 parser.error("joint action requires 6 values: j1 j2 j3 j4 j5 j6")
             args.j1, args.j2, args.j3, args.j4, args.j5, args.j6 = args.coords[:6]
-        case "connect":
+        case "init":
             pass
         case _:
             pass
@@ -105,7 +115,9 @@ def main():
             move_cartesian(ra, args.x, args.y, args.z, args.rx, args.ry, args.rz)
         case "joint":
             pass
-        case "connect":
+        case "init":
+            position_init(ra)
+        case _:
             pass
 
 
