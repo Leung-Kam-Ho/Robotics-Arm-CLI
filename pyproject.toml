@@ -17,3 +17,6 @@ include = ["src/*"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/robotics_arm_cli"]
+
+[project.scripts]
+rac = "robotics_arm_cli:main"

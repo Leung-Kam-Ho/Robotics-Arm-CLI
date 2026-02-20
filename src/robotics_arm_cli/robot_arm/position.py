@@ -34,3 +34,6 @@ class Cartesian():
         self.rx = rx
         self.ry = ry
         self.rz = rz
+    
+    def __str__(self) -> str:
+        return f"Cartesian(x={self.x}, y={self.y}, z={self.z}, rx={self.rx}, ry={self.ry}, rz={self.rz})"
