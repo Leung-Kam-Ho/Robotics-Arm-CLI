@@ -82,11 +82,13 @@ def main():
 
     args = parser.parse_args()
 
+    # -- input validation and processing --
     match args.action:
         case "move":
             if len(args.coords) < 6:
                 parser.error("move action requires 6 values: x y z rx ry rz")
             args.x, args.y, args.z, args.rx, args.ry, args.rz = args.coords[:6]
+
         case "joint":
             if len(args.coords) < 6:
                 parser.error("joint action requires 6 values: j1 j2 j3 j4 j5 j6")
@@ -96,9 +98,15 @@ def main():
         case _:
             pass
 
+    # -- connect to robot arm and execute action --
     ra = connectToRobotArm(args.ip, args.offset, args.speed)
-    if args.action == "move":
-        move_cartesian(ra, args.x, args.y, args.z, args.rx, args.ry, args.rz)
+    match args.action:
+        case "move":
+            move_cartesian(ra, args.x, args.y, args.z, args.rx, args.ry, args.rz)
+        case "joint":
+            pass
+        case "connect":
+            pass
 
 
 if __name__ == "__main__":
