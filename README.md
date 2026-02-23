@@ -16,7 +16,8 @@ A CLI tool for controlling robotics arms using behavior trees (py-trees). The co
 
 ```bash
 # Install the package
-uv pip install -e .
+uv sync
+uv tool install -e .
 ```
 
 ## Usage
