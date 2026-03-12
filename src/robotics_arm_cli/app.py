@@ -98,7 +98,7 @@ def main():
     parser.add_argument(
         "--gripper-angle",
         type=int,
-        choices=[0, 90],
+        choices=[i for i in range(0, 91, 10)],
         default=90,
         help="Gripper angle: 0 = close, 90 = open",
     )
